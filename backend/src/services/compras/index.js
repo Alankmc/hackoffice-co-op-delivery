@@ -21,15 +21,16 @@ const getCompra = (request, response) => {
     const compra = listCompras().filter(item => item.id == compraId)
 
     if (Object.keys(compra).length === 0) {
-        console.error('Compra not found')
+        response.statusCode = 404;
+        response.json({message: 'Compra not found'});
     }
 
     return compra;
 }
 
 const addCompra = (request, response) => {
-    const body = request.body;
-    console.log('body', body);
+    const newCompra = request.body;
+    console.log('body', newCompra);
 
     // TODO: insert on DB
     compras.push(body)
