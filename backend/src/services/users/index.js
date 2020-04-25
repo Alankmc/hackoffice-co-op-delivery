@@ -1,15 +1,18 @@
-const uuid = require("uuid"); // import { v4 as uuidv4 } from 'uuid';
+const { User } = require('../../model/user.js');
 
-const userList = [{ id: 1, name: "João" }]
+const userList = [{ id: 1, name: "João", email: "joao@gmail.com", password: "1234" }]
 
-const listUsers = () => userList
+const listUsers = () => {
+  return userList.map(i => {
+    return { id: i.id, name: i.name, email: i.email }
+  });
+}
 
 const registerUser = (req) => {
-  const userUuid = uuid.v4();
-  const newUser = {
-    id: userUuid,
-    name: req.body.name
-  };
+  const newUser = new User();
+  newUser.name = req.body.name;
+  newUser.email = req.body.email;
+  newUser.setPassword(req.body.password);
 
   userList.push(newUser);
   //TODO: Save to database
