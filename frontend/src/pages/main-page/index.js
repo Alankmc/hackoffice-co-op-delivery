@@ -1,26 +1,25 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState, useContext } from "react";
+import styled from "styled-components";
+import Button from "../../components/button";
+import { Link } from "react-router-dom";
+import { listContext } from "../../contexts/lists";
 
-function App() {
+function MainPage() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <listContext.Consumer>
+      {(listContext) => {
+        console.log(listContext);
+        return (
+          <div>
+            <h1>Listagens</h1>
+            <Link to="/sign-up">
+              <Button type="button">Cadastrar</Button>
+            </Link>
+          </div>
+        );
+      }}
+    </listContext.Consumer>
   );
 }
 
-export default App;
+export default MainPage;
