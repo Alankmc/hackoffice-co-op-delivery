@@ -11,22 +11,16 @@ const modelExample = {
 const listCompras = () => [modelExample]
 
 const getCompra = (request, response) => {
-
     const compraId = request.params.id;
 
     if (!compraId) {
         return listCompras();
     }
 
-    // get dados do banco
+    const compra = listCompras().filter(item => item.id == compraId)
 
-    
-    console.log('compraId', compraId)
-
-    const compra = listCompras().filter(item => item.id === compraId)
-
-    if (!compra) {
-        console.error('compra not found')
+    if (Object.keys(compra).length === 0) {
+        console.error('Compra not found')
     }
 
     return compra;
