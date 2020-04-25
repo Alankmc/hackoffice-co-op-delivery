@@ -1,4 +1,4 @@
-const modelExample = { 
+const compras = [{ 
     id: 1, 
     nome: "João",
     validade: 1587853511000,
@@ -6,9 +6,9 @@ const modelExample = {
     localEntrega: "Rua XV de Novembro, 400 - Indaiatuba - SP",
     itens: ["2 sacos de arroz 5kg", "5 maçãs", "3 abacaxis"],
     observaoes: "Posso fazer o pick-up no seu porta-malas"
-}
+}]
 
-const listCompras = () => [modelExample]
+const listCompras = () => compras
 
 const getCompra = (request, response) => {
     const compraId = request.params.id;
@@ -17,6 +17,7 @@ const getCompra = (request, response) => {
         return listCompras();
     }
 
+    // TODO: findById from DB
     const compra = listCompras().filter(item => item.id == compraId)
 
     if (Object.keys(compra).length === 0) {
@@ -26,7 +27,16 @@ const getCompra = (request, response) => {
     return compra;
 }
 
+const addCompra = (request, response) => {
+    const body = request.body;
+    console.log('body', body);
+
+    // TODO: insert on DB
+    compras.push(body)
+}
+
 module.exports = {
     listCompras,
-    getCompra
+    getCompra,
+    addCompra
 }
