@@ -1,13 +1,13 @@
+const uuid = require("uuid"); // import { v4 as uuidv4 } from 'uuid';
+
 const userList = [{ id: 1, name: "João" }]
 
 const listUsers = () => userList
 
 const registerUser = (req) => {
-  // Find largest id in userList (not sure if this is necessary when adding to database)
-  const largestId = userList.map(i => i.id).reduce((prev, cur) => prev > cur ? prev : cur);
-  const nextId = largestId + 1;
+  const userUuid = uuid.v4();
   const newUser = {
-    id: nextId,
+    id: userUuid,
     name: req.body.name
   };
 
