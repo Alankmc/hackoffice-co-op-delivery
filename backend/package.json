@@ -1,0 +1,17 @@
+{
+  "name": "dx-beneficios",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./src/config/server.js",
+    "test": "mocha $(find ./src) --recursive --exit;"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "chai": "^4.2.0",
+    "express": "^4.17.1",
+    "mocha": "^7.0.1"
+  }
+}
