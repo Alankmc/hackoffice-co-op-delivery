@@ -10,8 +10,8 @@ const status = {
 const compras = [{ 
     id: 1, 
     nome: "João",
-    validade: 1587853511000,
-    localCompra: "Supermercado Pague Menos",
+    validade: 1587853511000, 
+    localCompra: 'Supermercado Pague Menos', 
     localEntrega: "Rua XV de Novembro, 400 - Indaiatuba - SP",
     status: status.NEW,
     itens: ["2 sacos de arroz 5kg", "5 maçãs", "3 abacaxis"],
@@ -27,8 +27,7 @@ const getCompra = (request, response) => {
         return listCompras();
     }
 
-    // TODO: findById from DB
-    const compra = listCompras().find(c => c.id == compraId)
+    const compra = getCompraById(compraId, response);
 
     if (!compra) {
         return response
@@ -58,16 +57,8 @@ const updateCompra = (request, response) => {
             .send({ message: 'Missing path param id.' });
     }
 
-    // TODO: findById from DB
-    const existentCompra = listCompras().find(c => c.id == compraId)
-    if (!existentCompra) {
-        return response
-            .status(404)
-            .send({ message: `Compra ${compraId} not found.` });
-    }
-
+    const existentCompra = getCompraById(compraId, response);
     const updatedCompra = request.body;
-    console.log('updatedCompra', updatedCompra);
 
     for (let property in updatedCompra) {
         existentCompra[property] = updatedCompra[property];
@@ -80,7 +71,7 @@ const updateCompra = (request, response) => {
 
 const assignCompra = (request, response) => {
     const compraId = request.params.id;
-    let compra = getCompraById(compraId);
+    let compra = getCompraById(compraId, response);
 
     if (compra.status != status.NEW) {
         return response
@@ -98,8 +89,8 @@ const assignCompra = (request, response) => {
     return response.status(200).json(compra);
 }
 
-function getCompraById(compraId) {
-    // TODO: findById from DB
+// TODO: findById from DB
+function getCompraById(compraId, response) {
     const compra = listCompras().find(c => c.id == compraId)
 
     if (!compra) {

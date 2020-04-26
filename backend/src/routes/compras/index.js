@@ -11,6 +11,6 @@ module.exports = (app) => {
 
     route.post('/', validatePostParams(), addCompra);
 
-    route.put('/:id', (req, res) => res.send(updateCompra(req, res)));
-    route.put('/:id/atribuir',(req, res) => res.send(assignCompra(req, res)));
+    route.put('/:id', (req, res) => updateCompra(req, res));
+    route.put('/:id/atribuir', (req, res) => assignCompra(req, res));
 }
