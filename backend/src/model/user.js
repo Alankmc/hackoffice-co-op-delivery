@@ -3,14 +3,6 @@ const crypto = require("crypto");
 const { DataTypes } = require("sequelize");
 const { sequelize } = require("../Database/index");
 
-sequelize
-  .authenticate()
-  .then(() => {
-    console.log("Connection has been established successfully.");
-  })
-  .catch(err => {
-    console.error("Unable to connect to the database:", err);
-  });
 class User {
   constructor(id) {
     this.User;
