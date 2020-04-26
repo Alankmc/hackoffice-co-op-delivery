@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Axios from "axios";
+import { BASE_URL } from "../../config/env";
 
 export const listContext = React.createContext({
   data: null,
@@ -16,7 +17,8 @@ const ListProvider = ({children}) => {
     const getLists = async () => {
       let lists = null;
       try {
-        lists = await Axios.get('/lists');
+        const response = await Axios.get(`${BASE_URL}/compras`);
+        lists = response.data;
       } catch (e) {
         console.error(e);
       }

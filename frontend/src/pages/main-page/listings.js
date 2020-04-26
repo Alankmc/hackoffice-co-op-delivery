@@ -10,6 +10,10 @@ const Wrapper = styled.div`
 const Listings = (props) => {
   const { listings } = props;
 
+  if (!listings || !listings.length) {
+    return (<div>No listings!</div>)
+  }
+
   return (
     <Wrapper>
       {listings.map((el, index) => (

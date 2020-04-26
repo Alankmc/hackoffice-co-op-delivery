@@ -3,23 +3,37 @@ import styled from "styled-components";
 import Button from "../../components/button";
 import { Link } from "react-router-dom";
 import { listContext } from "../../contexts/lists";
+import Loader from "../../components/loader";
+import Listings from "./listings";
+import PageTemplate from "../../components/page-template";
+import CreateListing from "../create-listing";
 
-function MainPage() {
+const MainPage = (props) => {
+  const {loading, data} = props;
+  // @TODO change this
+  const [createIsOpen, setCreateIsOpen] = useState(true);
+
   return (
-    <listContext.Consumer>
-      {(listContext) => {
-        console.log(listContext);
-        return (
-          <div>
-            <h1>Listagens</h1>
-            <Link to="/sign-up">
-              <Button type="button">Cadastrar</Button>
-            </Link>
-          </div>
-        );
-      }}
-    </listContext.Consumer>
+    <div>
+      {createIsOpen && <CreateListing closeHandler={() => setCreateIsOpen(false)}/>}
+      <h1>Listagens</h1>
+      <Button onClick={() => setCreateIsOpen(true)}>Criar Lista!</Button>
+      {loading ? <Loader /> : (<Listings listings={data} />)}
+    </div>
   );
 }
 
-export default MainPage;
+function MainPageConnector() {
+  return (
+    <PageTemplate>
+      <listContext.Consumer>
+        {(listContext) => <MainPage
+          data={listContext.data}
+          loading={listContext.loading}
+        />}
+      </listContext.Consumer>
+    </PageTemplate>
+  );
+}
+
+export default MainPageConnector;

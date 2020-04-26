@@ -3,6 +3,7 @@ import styled from "styled-components";
 import InputField from "../../components/input-field";
 import Button from "../../components/button";
 import { Link } from "react-router-dom";
+import PageTemplate from "../../components/page-template";
 
 const SignUpPage = (props) => {
   const [email, setEmail] = useState("");
@@ -10,7 +11,7 @@ const SignUpPage = (props) => {
   const [moreInfo, setMoreInfo] = useState("");
 
   return (
-    <div>
+    <PageTemplate>
       <h1>Cadastre-se</h1>
       <div>Entra ae para dar boa</div>
       <div>
@@ -31,7 +32,7 @@ const SignUpPage = (props) => {
         <Button type="button">Voltar</Button>
       </Link>
       <Button type="button">Submeter</Button>
-    </div>
+    </PageTemplate>
   );
 };
 

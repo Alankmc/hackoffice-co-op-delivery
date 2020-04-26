@@ -10,28 +10,27 @@ const ProductWrapper = styled.div`
 `;
 
 const Product = (props) => {
-  const { quantidade, produto } = props;
-
+  const { product } = props;
   return (
     <ProductWrapper>
-      {quantidade} {produto}
+      {product}
     </ProductWrapper>
   );
 };
 
 const Listing = (props) => {
-  const { nome, itens, date, location } = props;
+  const { nome, itens, validade, location } = props;
   return (
     <Wrapper>
       <UserInfo>
-        {user} precisa de 
+        {nome} precisa de
         {itens.length > 1
-          ? `${itens.length} produtos`
-          : `${itens.length} produto`}
+          ? ` ${itens.length} produtos`
+          : ` ${itens.length} produto`}
         :
       </UserInfo>
       {itens.map((el, index) => (
-        <Product key={`${nome}_${index}`} />
+        <Product key={`${nome}_${index}`} product={el} />
       ))}
     </Wrapper>
   );
