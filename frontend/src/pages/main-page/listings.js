@@ -8,7 +8,7 @@ const Wrapper = styled.div`
 `;
 
 const Listings = (props) => {
-  const { listings } = props;
+  const { listings, selectListHandler } = props;
 
   if (!listings || !listings.length) {
     return (<div>No listings!</div>)
@@ -17,7 +17,7 @@ const Listings = (props) => {
   return (
     <Wrapper>
       {listings.map((el, index) => (
-        <Listing key={`listing_${el.id}`} {...el} />
+        <Listing key={`listing_${el.id}`} selectListHandler={() => selectListHandler(index)} {...el} />
       ))}
     </Wrapper>
   );

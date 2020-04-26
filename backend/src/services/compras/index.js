@@ -1,4 +1,5 @@
 const { Compra } = require('../../model/compra.js');
+const uuid = require('uuid');
 
 const status = {
     NEW: 'NEW',
@@ -29,8 +30,7 @@ function getCompraById(compraId) {
 }
 
 const addCompra = (newCompra) => {
-    newCompra.status = status.NEW;
-
+    const newCompra = {...request.body, id: uuid.v4(), status: status.NEW};
     // TODO: insert on DB
     compras.push(newCompra);
 }
@@ -42,8 +42,6 @@ const updateCompra = (compraId, compraUpdate) => {
     }
 
     const updatedCompra = compra.update(compraUpdate);
-
-    // TODO: update on DB
 
     return updatedCompra;
 }
