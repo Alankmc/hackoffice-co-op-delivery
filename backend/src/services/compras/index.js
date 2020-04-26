@@ -78,6 +78,33 @@ const updateCompra = (request, response) => {
     return response.status(200).json(updatedCompra);
 }
 
+const assignCompra = (request, response) => {
+    const compraId = request.params.id;
+    let compra = getCompraById(compraId);
+
+    const assigneeId = 'XPTO'; // TODO: Define how to get userId here.
+
+    compra['status'] = status.ASSIGNED;
+    compra['assigneeId'] = assigneeId;
+
+    // TODO: update on DB
+
+    return response.status(200).json(compra);
+}
+
+function getCompraById(compraId) {
+    // TODO: findById from DB
+    const compra = listCompras().find(c => c.id == compraId)
+
+    if (!compra) {
+        return response
+            .status(404)
+            .send({ message: `Compra ${compraId} not found.` });
+    }
+
+    return compra;
+}
+
 const validatePostParams = function() {
     const requiredParams = ['nome', 'validade', 'localEntrega', 'itens'];
 
@@ -105,5 +132,6 @@ module.exports = {
     getCompra,
     addCompra,
     updateCompra,
+    assignCompra,
     validatePostParams
 }
