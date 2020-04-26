@@ -35,11 +35,37 @@ const addCompra = (request, response) => {
     console.log('body', newCompra);
 
     // TODO: insert on DB
-    compras.push(newCompra)
+    compras.push(newCompra);
+
+    return response.status(201).json(newCompra);
 }
+
+const validatePostParams = function() {
+    const requiredParams = ['nome', 'validade', 'localEntrega', 'itens'];
+
+    return function (request, response, next) {
+        // TODO: Change this workaround.
+        const body = (request.body)[0];
+
+        for (let param of requiredParams) {
+            if (!checkParamPresent(body, param)) {
+                return response
+                    .status(422)
+                    .send({ message: `Missing param ${param}.` });
+            }
+        }
+
+        next();
+    }
+}
+
+const checkParamPresent = function (body, paramName) {
+    return (body[paramName]);
+};
 
 module.exports = {
     listCompras,
     getCompra,
-    addCompra
+    addCompra,
+    validatePostParams
 }
