@@ -1,11 +1,19 @@
 const { Compra } = require('../../model/compra.js');
 
+const status = {
+    NEW: 'NEW',
+    ASSIGNED: 'ASSIGNED',
+    DELIVERED: 'DELIVERED',
+    CANCELLED: 'CANCELLED'
+}
+
 const compras = [{ 
     id: 1, 
     nome: "João",
     validade: 1587853511000,
     localCompra: "Supermercado Pague Menos",
     localEntrega: "Rua XV de Novembro, 400 - Indaiatuba - SP",
+    status: status.NEW,
     itens: ["2 sacos de arroz 5kg", "5 maçãs", "3 abacaxis"],
     observaoes: "Posso fazer o pick-up no seu porta-malas"
 }]
@@ -32,7 +40,7 @@ const getCompra = (request, response) => {
 
 const addCompra = (request, response) => {
     const newCompra = request.body;
-    console.log('body', newCompra);
+    newCompra['status'] = status.NEW;
 
     // TODO: insert on DB
     compras.push(newCompra);
@@ -65,7 +73,6 @@ const updateCompra = (request, response) => {
     }
 
     // TODO: update on DB
-    // compras.push(existentCompra);
 
     return response.status(200).json(updatedCompra);
 }
@@ -89,8 +96,6 @@ const validatePostParams = function() {
 }
 
 const checkParamPresent = function (body, paramName) {
-    console.log(body)
-    console.log(paramName)
     return (body[paramName]);
 };
 
