@@ -1,3 +1,5 @@
+const { Compra } = require('../../model/compra.js');
+
 const compras = [{ 
     id: 1, 
     nome: "João",
