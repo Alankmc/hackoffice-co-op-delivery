@@ -18,9 +18,9 @@ const getCompra = (request, response) => {
     }
 
     // TODO: findById from DB
-    const compra = listCompras().filter(item => item.id == compraId)
+    const compra = listCompras().find(c => c.id == compraId)
 
-    if (Object.keys(compra).length === 0) {
+    if (!compra) {
         response.statusCode = 404;
         response.json({message: 'Compra not found'});
     }
@@ -33,7 +33,7 @@ const addCompra = (request, response) => {
     console.log('body', newCompra);
 
     // TODO: insert on DB
-    compras.push(body)
+    compras.push(newCompra)
 }
 
 module.exports = {
