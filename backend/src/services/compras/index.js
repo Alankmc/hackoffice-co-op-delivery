@@ -82,6 +82,12 @@ const assignCompra = (request, response) => {
     const compraId = request.params.id;
     let compra = getCompraById(compraId);
 
+    if (compra.status != status.NEW) {
+        return response
+            .status(409)
+            .send({ message: `Compra ${compraId} cannot be assigned due to its current status.` });
+    }
+
     const assigneeId = 'XPTO'; // TODO: Define how to get userId here.
 
     compra['status'] = status.ASSIGNED;
