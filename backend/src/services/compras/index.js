@@ -31,8 +31,9 @@ const getCompra = (request, response) => {
     const compra = listCompras().find(c => c.id == compraId)
 
     if (!compra) {
-        response.statusCode = 404;
-        response.json({message: 'Compra not found'});
+        return response
+            .status(404)
+            .send({ message: `Compra ${compraId} not found.` });
     }
 
     return compra;
