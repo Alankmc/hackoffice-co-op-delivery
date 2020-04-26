@@ -1,6 +1,11 @@
 const { Router } = require("express");
 const { listCompras, getCompra, addCompra, updateCompra, assignCompra, deliverCompra, cancelCompra, validatePostParams } = require("../../controllers/compras");
 
+// Adding this to test out FE loading screens, whenever needed
+const delay = (callback) => {
+    setTimeout(callback, 1000);
+}
+
 module.exports = (app) => {
     const route = Router();
 
