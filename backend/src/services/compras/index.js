@@ -40,12 +40,41 @@ const addCompra = (request, response) => {
     return response.status(201).json(newCompra);
 }
 
+const updateCompra = (request, response) => {
+    const compraId = request.params.id;
+
+    if (!compraId) {
+        return response
+            .status(400)
+            .send({ message: 'Missing path param id.' });
+    }
+
+    // TODO: findById from DB
+    const existentCompra = listCompras().find(c => c.id == compraId)
+    if (!existentCompra) {
+        return response
+            .status(404)
+            .send({ message: `Compra ${compraId} not found.` });
+    }
+
+    const updatedCompra = request.body;
+    console.log('updatedCompra', updatedCompra);
+
+    for (let property in updatedCompra) {
+        existentCompra[property] = updatedCompra[property];
+    }
+
+    // TODO: update on DB
+    // compras.push(existentCompra);
+
+    return response.status(200).json(updatedCompra);
+}
+
 const validatePostParams = function() {
     const requiredParams = ['nome', 'validade', 'localEntrega', 'itens'];
 
     return function (request, response, next) {
-        // TODO: Change this workaround.
-        const body = (request.body)[0];
+        const body = (request.body);
 
         for (let param of requiredParams) {
             if (!checkParamPresent(body, param)) {
@@ -60,6 +89,8 @@ const validatePostParams = function() {
 }
 
 const checkParamPresent = function (body, paramName) {
+    console.log(body)
+    console.log(paramName)
     return (body[paramName]);
 };
 
@@ -67,5 +98,6 @@ module.exports = {
     listCompras,
     getCompra,
     addCompra,
+    updateCompra,
     validatePostParams
 }
