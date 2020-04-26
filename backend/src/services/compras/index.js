@@ -89,6 +89,40 @@ const assignCompra = (request, response) => {
     return response.status(200).json(compra);
 }
 
+const deliverCompra = (request, response) => {
+    const compraId = request.params.id;
+    let compra = getCompraById(compraId, response);
+
+    if (compra.status != status.ASSIGNED) {
+        return response
+            .status(409)
+            .send({ message: `Compra ${compraId} cannot be delivered due to its current status.` });
+    }
+
+    compra['status'] = status.DELIVERED;
+
+    // TODO: update on DB
+
+    return response.status(200).json(compra);
+}
+
+const cancelCompra = (request, response) => {
+    const compraId = request.params.id;
+    let compra = getCompraById(compraId, response);
+
+    if (compra.status == status.DELIVERED) {
+        return response
+            .status(409)
+            .send({ message: `Compra ${compraId} cannot be cancelled due to its current status.` });
+    }
+
+    compra['status'] = status.CANCELLED;
+
+    // TODO: update on DB
+
+    return response.status(200).json(compra);
+}
+
 // TODO: findById from DB
 function getCompraById(compraId, response) {
     const compra = listCompras().find(c => c.id == compraId)
@@ -130,5 +164,7 @@ module.exports = {
     addCompra,
     updateCompra,
     assignCompra,
+    deliverCompra,
+    cancelCompra,
     validatePostParams
 }
