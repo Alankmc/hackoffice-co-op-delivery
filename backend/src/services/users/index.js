@@ -1,6 +1,14 @@
 const { User } = require('../../model/user.js');
+const crypto = require("crypto");
 
-const userList = [{ id: "1", name: "João", email: "joao@gmail.com", password: "1234" }]
+const userList = [{
+  id: "1",
+  name: "João",
+  email: "joao@gmail.com",
+  password: "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4" // "1234" in SHA256 hash
+}];
+
+let loggedUser = undefined
 
 const listUsers = () => {
   return userList.map(i => {
@@ -12,7 +20,7 @@ const registerUser = (req) => {
   const newUser = new User();
   newUser.name = req.body.name;
   newUser.email = req.body.email;
-  newUser.setPassword(req.body.password);
+  newUser.password = crypto.createHash('sha256').update(req.body.password).digest('hex');
 
   userList.push(newUser);
   //TODO: Save to database
@@ -31,13 +39,22 @@ const authenticateUser = (req, res, next) => {
   const splitCredentials = credentials.split(':');
   const id = splitCredentials[0];
   const password = splitCredentials[1];
+  const passwordHash = crypto.createHash('sha256').update(password).digest('hex');
 
-  const foundUser = userList.find(i => i.id === id && i.password === password);
+  const foundUser = userList.find(i => i.id === id && i.password === passwordHash);
   if (!foundUser) {
     return returnAuthorizationFailure(res);
   }
 
+  loggedUser = foundUser;
+
   next();
+}
+
+const getLoggedUser = () => {
+  // Only works after proper authentication on authenticateUser().
+  // If you're getting loggedUser as undefined, make sure to add authenticateUser() to the middleware.
+  return loggedUser;
 }
 
 const returnAuthorizationFailure = (res) => {
