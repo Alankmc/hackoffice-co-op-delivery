@@ -1,4 +1,5 @@
 const compraService = require("../../services/compras");
+const { Compra } = require('../../model/compra.js');
 
 const listCompras = () => compraService.listCompras();
 
@@ -20,9 +21,9 @@ const getCompra = (request, response) => {
 }
 
 const addCompra = (request, response) => {
-    // TODO: create model;
-    const newCompra = request.body;
-    
+    let newCompra = Compra.createFromJson(request.body);
+    console.log(newCompra);
+
     compraService.addCompra(newCompra);
 
     return response.status(201).json(newCompra);

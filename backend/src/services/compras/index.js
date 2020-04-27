@@ -7,16 +7,19 @@ const status = {
     CANCELLED: 'CANCELLED'
 }
 
-const compras = [{ 
-    id: 1, 
-    nome: "João",
-    validade: 1587853511000, 
-    localCompra: 'Supermercado Pague Menos', 
-    localEntrega: "Rua XV de Novembro, 400 - Indaiatuba - SP",
-    status: status.NEW,
-    itens: ["2 sacos de arroz 5kg", "5 maçãs", "3 abacaxis"],
-    observaoes: "Posso fazer o pick-up no seu porta-malas"
-}]
+const compras = [
+    Compra.createFromJson(
+        { 
+            id: 1, 
+            nome: "João",
+            validade: 1587853511000, 
+            localCompra: "Supermercado Pague Menos", 
+            localEntrega: "Rua XV de Novembro, 400 - Indaiatuba - SP",
+            status: status.NEW,
+            itens: ["2 sacos de arroz 5kg", "5 maçãs", "3 abacaxis"],
+            observaoes: "Posso fazer o pick-up no seu porta-malas"
+        })
+]
 
 const listCompras = () => compras
 
@@ -26,25 +29,23 @@ function getCompraById(compraId) {
 }
 
 const addCompra = (newCompra) => {
-    newCompra['status'] = status.NEW;
+    newCompra.status = status.NEW;
 
     // TODO: insert on DB
     compras.push(newCompra);
 }
 
 const updateCompra = (compraId, compraUpdate) => {
-    let compra = getCompraById(compraId);
+    const compra = getCompraById(compraId);
     if (!compra) {
         return;
     }
 
-    for (let property in compraUpdate) {
-        compra[property] = compraUpdate[property];
-    }
+    const updatedCompra = compra.update(compraUpdate);
 
     // TODO: update on DB
 
-    return compra;
+    return updatedCompra;
 }
 
 const assignCompra = (compraId) => {
@@ -55,9 +56,8 @@ const assignCompra = (compraId) => {
     }
 
     const assigneeId = 'XPTO'; // TODO: Define how to get userId here.
-
-    compra['status'] = status.ASSIGNED;
-    compra['assigneeId'] = assigneeId;
+    compra.status = status.ASSIGNED;
+    compra.assigneeId = assigneeId;
 
     // TODO: update on DB
 
@@ -71,7 +71,7 @@ const deliverCompra = (compraId) => {
         return;
     }
 
-    compra['status'] = status.DELIVERED;
+    compra.status = status.DELIVERED;
 
     // TODO: update on DB
 
@@ -85,7 +85,7 @@ const cancelCompra = (compraId) => {
         return;
     }
 
-    compra['status'] = status.CANCELLED;
+    compra.status = status.CANCELLED;
 
     // TODO: update on DB
 
