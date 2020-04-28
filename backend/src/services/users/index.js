@@ -1,32 +1,24 @@
 const { User } = require('../../model/user.js');
 const crypto = require("crypto");
 
-const userList = [{
-  id: "1",
-  name: "João",
-  email: "joao@gmail.com",
-  password: "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4" // "1234" in SHA256 hash
-}];
-
 let loggedUser = undefined
 
-const listUsers = () => {
-  return userList.map(i => {
-    return { id: i.id, name: i.name, email: i.email }
-  });
-}
+const listUsers = async () => {
+  const users = new User();
+  users.setUserModel();
+  const list = await users.list();
+  return list.map(i => ({ id: i.id, name: i.name, email: i.email }));
+};
 
-const registerUser = (req) => {
+const registerUser = req => {
   const newUser = new User();
   newUser.name = req.body.name;
   newUser.email = req.body.email;
   newUser.password = crypto.createHash('sha256').update(req.body.password).digest('hex');
+  newUser.setUserModel();
 
-  userList.push(newUser);
-  //TODO: Save to database
-
-  return newUser;
-}
+  newUser.create(newUser);
+};
 
 const authenticateUser = (req, res, next) => {
   const authorizationHeader = req.headers.authorization;
@@ -35,15 +27,15 @@ const authenticateUser = (req, res, next) => {
     return returnAuthorizationFailure(res);
   }
 
-  const encodedAuth = authorizationHeader.split(' ');
-  const credentials = Buffer.from(encodedAuth[1], 'base64').toString(); // Read credentials in base64
+  const encodedAuth = authorizationHeader.split(" ");
+  const credentials = Buffer.from(encodedAuth[1], "base64").toString(); // Read credentials in base64
 
-  const splitCredentials = credentials.split(':');
+  const splitCredentials = credentials.split(":");
   const id = splitCredentials[0];
   const password = splitCredentials[1];
   const passwordHash = crypto.createHash('sha256').update(password).digest('hex');
 
-  const foundUser = userList.find(i => i.id === id && i.password === passwordHash);
+  const foundUser = listUsers().find(i => i.id === id && i.password === passwordHash);
   if (!foundUser) {
     return returnAuthorizationFailure(res);
   }
@@ -51,7 +43,7 @@ const authenticateUser = (req, res, next) => {
   loggedUser = foundUser;
 
   next();
-}
+};
 
 const getLoggedUser = () => {
   // Only works after proper authentication on authenticateUser().
@@ -60,7 +52,7 @@ const getLoggedUser = () => {
 }
 
 const returnAuthorizationFailure = (res) => {
-  return res.status(401).json({ message: "Wrong Authentication"});
+  return res.status(401).json({ message: "Wrong Authentication" });
 }
 
 module.exports = {
