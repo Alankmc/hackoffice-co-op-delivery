@@ -1,22 +1,25 @@
-const { User } = require('../../model/user.js');
+const { User } = require("../../model/user.js");
 
-const userList = [{ id: "1", name: "João", email: "joao@gmail.com", password: "1234" }]
+const userList = [
+  { id: "1", name: "João", email: "joao@gmail.com", password: "1234" }
+];
 
-const listUsers = () => {
-  return userList.map(i => {
-    return { id: i.id, name: i.name, email: i.email }
-  });
-}
+const listUsers = async () => {
+  const users = new User();
+  users.setUserModel();
+  const list = await users.list();
+  return list.map(i => ({ id: i.id, name: i.name, email: i.email }));
+};
 
-const registerUser = (req) => {
+const registerUser = req => {
   const newUser = new User();
   newUser.name = req.body.name;
   newUser.email = req.body.email;
+  newUser.setUserModel();
   newUser.setPassword(req.body.password);
 
-  userList.push(newUser);
-  //TODO: Save to database
-}
+  newUser.create(newUser);
+};
 
 const authenticateUser = (req, res, next) => {
   const authorizationHeader = req.headers.authorization;
@@ -25,10 +28,10 @@ const authenticateUser = (req, res, next) => {
     return returnAuthorizationFailure(res);
   }
 
-  const encodedAuth = authorizationHeader.split(' ');
-  const credentials = Buffer.from(encodedAuth[1], 'base64').toString(); // Read credentials in base64
+  const encodedAuth = authorizationHeader.split(" ");
+  const credentials = Buffer.from(encodedAuth[1], "base64").toString(); // Read credentials in base64
 
-  const splitCredentials = credentials.split(':');
+  const splitCredentials = credentials.split(":");
   const id = splitCredentials[0];
   const password = splitCredentials[1];
 
@@ -38,14 +41,14 @@ const authenticateUser = (req, res, next) => {
   }
 
   next();
-}
+};
 
-const returnAuthorizationFailure = (res) => {
-  return res.status(401).json({ message: "Wrong Authentication"});
-}
+const returnAuthorizationFailure = res => {
+  return res.status(401).json({ message: "Wrong Authentication" });
+};
 
 module.exports = {
-    listUsers,
-    registerUser,
-    authenticateUser
-}
+  listUsers,
+  registerUser,
+  authenticateUser
+};
