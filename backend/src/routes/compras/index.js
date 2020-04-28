@@ -1,5 +1,5 @@
 const { Router } = require("express");
-const { listCompras, getCompra, addCompra, updateCompra, validatePostParams } = require("../../services/compras");
+const { listCompras, getCompra, addCompra, updateCompra, assignCompra, deliverCompra, cancelCompra, validatePostParams } = require("../../controllers/compras");
 
 module.exports = (app) => {
     const route = Router();
@@ -10,5 +10,9 @@ module.exports = (app) => {
     route.get('/:id', (req, res) => res.send(getCompra(req, res)));
 
     route.post('/', validatePostParams(), addCompra);
-    route.put('/:id', (req, res) => res.send(updateCompra(req, res)));
+
+    route.put('/:id', (req, res) => updateCompra(req, res));
+    route.put('/:id/atribuir', (req, res) => assignCompra(req, res));
+    route.put('/:id/entregar', (req, res) => deliverCompra(req, res));
+    route.put('/:id/cancelar', (req, res) => cancelCompra(req, res));
 }
