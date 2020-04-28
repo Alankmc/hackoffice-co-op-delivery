@@ -24,6 +24,8 @@ const registerUser = (req) => {
 
   userList.push(newUser);
   //TODO: Save to database
+
+  return newUser;
 }
 
 const authenticateUser = (req, res, next) => {
@@ -64,5 +66,6 @@ const returnAuthorizationFailure = (res) => {
 module.exports = {
     listUsers,
     registerUser,
-    authenticateUser
+    authenticateUser,
+    getLoggedUser
 }

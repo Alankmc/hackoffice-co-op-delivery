@@ -40,11 +40,14 @@ const updateCompra = (request, response) => {
 
     const compraUpdate = request.body;
     const updatedCompra = compraService.updateCompra(compraId, compraUpdate);
-    if (!updatedCompra) {
-        return response.status(400).json({message: `Error when updated compra ${compraId}`});
+
+    if (updatedCompra === 404) {
+        return response.status(404).json({message: `Could not find compra ${compraId}`});
+    } else if (updatedCompra === 403) {
+      return response.status(403).json({message: `Unauthorized to update compra ${compraId} that doesn't belong to logged user`});
     }
 
-    return response.status(200).json(updatedCompra);    
+    return response.status(200).json(updatedCompra);
 }
 
 const assignCompra = (request, response) => {
@@ -56,13 +59,33 @@ const assignCompra = (request, response) => {
     }
 
     const compra = compraService.assignCompra(compraId);
-    if (!compra) {
-        return response
-            .status(409)
-            .send({ message: `Compra ${compraId} cannot be assigned due to its current status.` });
+    if (compra === 409) {
+      return response.status(409).send({ message: `Compra ${compraId} cannot be assigned due to its current status.` });
+    } else if (compra === 404) {
+      return response.status(404).json({message: `Could not find compra ${compraId}`});
     }
 
     return response.status(200).json(compra);
+}
+
+const unassignCompra = (request, response) => {
+  const compraId = request.params.id;
+  if (!compraId) {
+      return response
+          .status(400)
+          .send({ message: 'Missing path param id.' });
+  }
+
+  const compra = compraService.unassignCompra(compraId);
+  if (compra === 409) {
+    return response.status(409).send({ message: `Compra ${compraId} cannot be assigned due to its current status.` });
+  } else if (compra === 403) {
+    return response.status(403).json({message: `Unauthorized to update compra ${compraId} that doesn't belong to logged user`});
+  } else if (compra === 404) {
+    return response.status(404).json({message: `Could not find compra ${compraId}`});
+  }
+
+  return response.status(200).json(compra);
 }
 
 const deliverCompra = (request, response) => {
@@ -74,10 +97,12 @@ const deliverCompra = (request, response) => {
     }
 
     const compra = compraService.deliverCompra(compraId);
-    if (!compra) {
-        return response
-            .status(409)
-            .send({ message: `Compra ${compraId} cannot be delivered due to its current status.` });
+    if (compra === 409) {
+      return response.status(409).send({ message: `Compra ${compraId} cannot be delivered due to its current status.` });
+    } else if (compra === 403) {
+      return response.status(403).json({message: `Unauthorized to update compra ${compraId} that doesn't belong to logged user`});
+    } else if (compra === 404) {
+      return response.status(404).json({message: `Could not find compra ${compraId}`});
     }
 
     return response.status(200).json(compra);
@@ -92,10 +117,13 @@ const cancelCompra = (request, response) => {
     }
 
     const compra = compraService.cancelCompra(compraId);
-    if (!compra) {
-        return response
-            .status(409)
-            .send({ message: `Compra ${compraId} cannot be cancelled due to its current status.` });
+
+    if (compra === 409) {
+      return response.status(409).send({ message: `Compra ${compraId} cannot be cancelled due to its current status.` });
+    } else if (compra === 403) {
+      return response.status(403).json({message: `Unauthorized to update compra ${compraId} that doesn't belong to logged user`});
+    } else if (compra === 404) {
+      return response.status(404).json({message: `Could not find compra ${compraId}`});
     }
 
     return response.status(200).json(compra);
@@ -129,6 +157,7 @@ module.exports = {
     addCompra,
     updateCompra,
     assignCompra,
+    unassignCompra,
     deliverCompra,
     cancelCompra,
     validatePostParams
