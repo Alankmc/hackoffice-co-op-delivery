@@ -11,7 +11,7 @@ const Listings = (props) => {
   const { listings, selectListHandler } = props;
 
   if (!listings || !listings.length) {
-    return (<div>No listings!</div>)
+    return (<div>Nenhuma lista de compras no momento!</div>)
   }
 
   return (

@@ -15,7 +15,7 @@ const StyledButton = styled.button`
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  &:hover {
+  &:hover:not(:disabled) {
     background-color: #cf310e;
   }
   &:disabled {
@@ -28,6 +28,17 @@ const StyledButton = styled.button`
 const Button = (props) => {
   return (<StyledButton {...props} />)
 }
+
+export const GhostButton = styled(Button)`
+  background-color: transparent;
+  color: #f95734;
+  padding: 0;
+  font-size: 0.9rem;
+  &:hover:not(:disabled) {
+    background-color: transparent;
+    color: #cf310e;
+  }
+`;
 
 export const GreenButton = styled(Button)`
   background-color: #3f8f50;

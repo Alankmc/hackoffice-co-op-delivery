@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import styled from "styled-components";
-import InputField from "../../components/input-field";
-import Button, { GreenButton } from "../../components/button";
+import { GreenButton } from "../../components/button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faShoppingBasket,

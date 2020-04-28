@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import Button from "../../components/button";
 import { listContext } from "../../contexts/lists";
+import { loginContext } from "../../contexts/login";
 import Loader from "../../components/loader";
 import Listings from "./listings";
 import PageTemplate from "../../components/page-template";
 import CreateListingModal from "../create-listing-modal";
+import SignUpModal from "../sign-up-modal";
 import ViewListingModal from "../view-listing-modal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
@@ -33,15 +35,26 @@ const MainPage = (props) => {
 
   return (
     <div>
-      {createIsOpen && (
-        <CreateListingModal
-          closeHandler={() => setCreateIsOpen(false)}
-          newDataHandler={(newData) => {
-            setData([newData, ...data]);
-          }}
-        />
-      )}
-
+      <loginContext.Consumer>
+        {({ token }) => {
+          if (!!token && createIsOpen) {
+            // Signed Up, Create listing Modal
+            return (
+              <CreateListingModal
+                closeHandler={() => setCreateIsOpen(false)}
+                newDataHandler={(newData) => {
+                  setData([newData, ...data]);
+                }}
+              />
+            );
+          } else if (createIsOpen) {
+            // Not signed up!
+            return <SignUpModal closeHandler={() => setCreateIsOpen(false)} extraMessage="Uma conta é necessária para criar uma lista de compras! Se já não possui uma conta, basta se cadastrar." />;
+          }
+          return null;
+        }}
+      </loginContext.Consumer>
+      {/* View listing Modal */}
       {showingList >= 0 && (
         <ViewListingModal
           closeHandler={() => setShowingList(-1)}

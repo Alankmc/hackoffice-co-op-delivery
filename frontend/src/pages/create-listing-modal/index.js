@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import styled from "styled-components";
 import InputField from "../../components/input-field";
-import Button, { GreenButton} from "../../components/button";
+import Button, { GreenButton } from "../../components/button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import Axios from "axios";
@@ -72,11 +72,21 @@ const FieldGrouper = styled.div`
   margin-top: 8px;
   display: flex;
   margin-bottom: 8px;
+  width: 100%;
+  justify-content: space-between;
 `;
 
 const JustFormWrapper = styled.div`
   width: 90%;
   margin: auto;
+`;
+
+const TextInputWrappers = styled.div`
+  display: flex;
+  align-items: center;
+  /* width: 85%; */
+  margin: auto;
+  flex-direction: column;
 `;
 
 const ouputValues = ({
@@ -185,41 +195,45 @@ const CreateListing = (props) => {
             >
               Adicionar Produto
             </Button>
-            <FieldGrouper>
-              <FieldAndComponent field="Endereço">
+            <TextInputWrappers>
+              <FieldGrouper>
+                <FieldAndComponent field="Endereço">
+                  <InputField
+                    type="text"
+                    disabled={loading}
+                    value={deliveryAddress}
+                    placeholder="Rua coisa e tal"
+                    onChange={({ target: { value } }) =>
+                      setDeliveryAddress(value)
+                    }
+                    style={{marginRight: '16px'}}
+                  />
+                </FieldAndComponent>
+                <FieldAndComponent field="Data de Validade">
+                  <InputField
+                    type="text"
+                    disabled={loading}
+                    value={expirationDate}
+                    placeholder="Data de Validade"
+                    onChange={({ target: { value } }) => setExpirationDate(value)}
+                  />
+                </FieldAndComponent>
+              </FieldGrouper>
+              <FieldAndComponent field="Observações" style={{width: '100%'}}>
                 <InputField
-                  type="text"
+                  type="textarea"
                   disabled={loading}
-                  value={deliveryAddress}
-                  placeholder="Rua coisa e tal"
-                  onChange={({ target: { value } }) =>
-                    setDeliveryAddress(value)
-                  }
-                  style={{marginRight: '16px'}}
+                  value={notes}
+                  onChange={({ target: { value } }) => setNotes(value)}
+                  style={{marginBottom: '10px', width: '100%'}}
                 />
               </FieldAndComponent>
-              <FieldAndComponent field="Data de Validade">
-                <InputField
-                  type="text"
-                  disabled={loading}
-                  value={expirationDate}
-                  placeholder="Data de Validade"
-                  onChange={({ target: { value } }) => setExpirationDate(value)}
-                />
-              </FieldAndComponent>
-            </FieldGrouper>
-            <FieldAndComponent field="Observações">
-              <InputField
-                type="textarea"
-                disabled={loading}
-                value={notes}
-                onChange={({ target: { value } }) => setNotes(value)}
-                style={{marginBottom: '10px'}}
-              />
-            </FieldAndComponent>
-            <GreenButton disabled={!goodToSubmit} onClick={submitList}>
-              Enviar
-            </GreenButton>
+            </TextInputWrappers>
+            <div style={{display: 'flex', justifyContent: 'flex-end', widht: '100%'}}>
+              <GreenButton disabled={!goodToSubmit} onClick={submitList}>
+                Enviar
+              </GreenButton>
+            </div>
           </JustFormWrapper>
         </Wrapper>
       </FormPositioner>
