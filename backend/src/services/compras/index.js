@@ -1,103 +1,103 @@
 const { Compra } = require('../../model/compra.js');
 
-const compras = [{ 
-    id: 1, 
-    nome: "João",
-    validade: 1587853511000,
-    localCompra: "Supermercado Pague Menos",
-    localEntrega: "Rua XV de Novembro, 400 - Indaiatuba - SP",
-    itens: ["2 sacos de arroz 5kg", "5 maçãs", "3 abacaxis"],
-    observaoes: "Posso fazer o pick-up no seu porta-malas"
-}]
+const status = {
+    NEW: 'NEW',
+    ASSIGNED: 'ASSIGNED',
+    DELIVERED: 'DELIVERED',
+    CANCELLED: 'CANCELLED'
+}
+
+const compras = [
+    Compra.createFromJson(
+        { 
+            id: 1, 
+            nome: "João",
+            validade: 1587853511000, 
+            localCompra: "Supermercado Pague Menos", 
+            localEntrega: "Rua XV de Novembro, 400 - Indaiatuba - SP",
+            status: status.NEW,
+            itens: ["2 sacos de arroz 5kg", "5 maçãs", "3 abacaxis"],
+            observaoes: "Posso fazer o pick-up no seu porta-malas"
+        })
+]
 
 const listCompras = () => compras
 
-const getCompra = (request, response) => {
-    const compraId = request.params.id;
+// TODO: findById from DB
+function getCompraById(compraId) {
+    return listCompras().find(c => c.id == compraId);
+}
 
-    if (!compraId) {
-        return listCompras();
-    }
+const addCompra = (newCompra) => {
+    newCompra.status = status.NEW;
 
-    // TODO: findById from DB
-    const compra = listCompras().find(c => c.id == compraId)
+    // TODO: insert on DB
+    compras.push(newCompra);
+}
 
+const updateCompra = (compraId, compraUpdate) => {
+    const compra = getCompraById(compraId);
     if (!compra) {
-        response.statusCode = 404;
-        response.json({message: 'Compra not found'});
+        return;
     }
+
+    const updatedCompra = compra.update(compraUpdate);
+
+    // TODO: update on DB
+
+    return updatedCompra;
+}
+
+const assignCompra = (compraId) => {
+    let compra = getCompraById(compraId);
+
+    if (!compra || compra.status != status.NEW) {
+        return;
+    }
+
+    const assigneeId = 'XPTO'; // TODO: Define how to get userId here.
+    compra.status = status.ASSIGNED;
+    compra.assigneeId = assigneeId;
+
+    // TODO: update on DB
 
     return compra;
 }
 
-const addCompra = (request, response) => {
-    const newCompra = request.body;
-    console.log('body', newCompra);
+const deliverCompra = (compraId) => {
+    let compra = getCompraById(compraId);
 
-    // TODO: insert on DB
-    compras.push(newCompra);
-
-    return response.status(201).json(newCompra);
-}
-
-const updateCompra = (request, response) => {
-    const compraId = request.params.id;
-
-    if (!compraId) {
-        return response
-            .status(400)
-            .send({ message: 'Missing path param id.' });
+    if (!compra || compra.status != status.ASSIGNED) {
+        return;
     }
 
-    // TODO: findById from DB
-    const existentCompra = listCompras().find(c => c.id == compraId)
-    if (!existentCompra) {
-        return response
-            .status(404)
-            .send({ message: `Compra ${compraId} not found.` });
-    }
-
-    const updatedCompra = request.body;
-    console.log('updatedCompra', updatedCompra);
-
-    for (let property in updatedCompra) {
-        existentCompra[property] = updatedCompra[property];
-    }
+    compra.status = status.DELIVERED;
 
     // TODO: update on DB
-    // compras.push(existentCompra);
 
-    return response.status(200).json(updatedCompra);
+    return compra;
 }
 
-const validatePostParams = function() {
-    const requiredParams = ['nome', 'validade', 'localEntrega', 'itens'];
+const cancelCompra = (compraId) => {
+    let compra = getCompraById(compraId);
 
-    return function (request, response, next) {
-        const body = (request.body);
-
-        for (let param of requiredParams) {
-            if (!checkParamPresent(body, param)) {
-                return response
-                    .status(422)
-                    .send({ message: `Missing param ${param}.` });
-            }
-        }
-
-        next();
+    if (!compra || compra.status == status.DELIVERED) {
+        return;
     }
-}
 
-const checkParamPresent = function (body, paramName) {
-    console.log(body)
-    console.log(paramName)
-    return (body[paramName]);
-};
+    compra.status = status.CANCELLED;
+
+    // TODO: update on DB
+
+    return compra;
+}
 
 module.exports = {
     listCompras,
-    getCompra,
+    getCompraById,
     addCompra,
     updateCompra,
-    validatePostParams
+    assignCompra,
+    deliverCompra,
+    cancelCompra
 }
