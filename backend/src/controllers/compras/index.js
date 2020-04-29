@@ -1,7 +1,7 @@
 const compraService = require("../../services/compras");
 const { Compra } = require('../../model/compra.js');
 
-const listCompras = () => compraService.listCompras();
+const listCompras = async () => await compraService.listCompras();
 
 const getCompra = (request, response) => {
     const compraId = request.params.id;
@@ -20,11 +20,8 @@ const getCompra = (request, response) => {
     return compra;
 }
 
-const addCompra = (request, response) => {
-    let newCompra = Compra.createFromJson(request.body);
-    console.log(newCompra);
-
-    compraService.addCompra(newCompra);
+const addCompra = async (request, response) => {
+    const newCompra = await compraService.addCompra(request.body);
 
     return response.status(201).json(newCompra);
 }
@@ -47,7 +44,7 @@ const updateCompra = (request, response) => {
     return response.status(200).json(updatedCompra);    
 }
 
-const assignCompra = (request, response) => {
+const assignCompra = async (request, response) => {
     const compraId = request.params.id;
     if (!compraId) {
         return response
@@ -55,17 +52,16 @@ const assignCompra = (request, response) => {
             .send({ message: 'Missing path param id.' });
     }
 
-    const compra = compraService.assignCompra(compraId);
-    if (!compra) {
-        return response
-            .status(409)
-            .send({ message: `Compra ${compraId} cannot be assigned due to its current status.` });
-    }
+    try {
+        await compraService.assignCompra(compraId, request.body.assigneeId);
+        return response.sendStatus(200);
 
-    return response.status(200).json(compra);
+    } catch (e) {
+        return response.status(500).send(e)
+    }
 }
 
-const deliverCompra = (request, response) => {
+const deliverCompra = async (request, response) => {
     const compraId = request.params.id;
     if (!compraId) {
         return response
@@ -73,17 +69,22 @@ const deliverCompra = (request, response) => {
             .send({ message: 'Missing path param id.' });
     }
 
-    const compra = compraService.deliverCompra(compraId);
-    if (!compra) {
-        return response
-            .status(409)
-            .send({ message: `Compra ${compraId} cannot be delivered due to its current status.` });
-    }
+    try {
+        await compraService.deliverCompra(compraId);
+        return response.sendStatus(200);
 
-    return response.status(200).json(compra);
+    } catch (e) {
+        return response.status(500).send(e)
+    }
+    // if (!compra) {
+    //     return response
+    //         .status(409)
+    //         .send({ message: `Compra ${compraId} cannot be delivered due to its current status.` });
+    // }
+
 }
 
-const cancelCompra = (request, response) => {
+const cancelCompra = async (request, response) => {
     const compraId = request.params.id;
     if (!compraId) {
         return response
@@ -91,33 +92,32 @@ const cancelCompra = (request, response) => {
             .send({ message: 'Missing path param id.' });
     }
 
-    const compra = compraService.cancelCompra(compraId);
-    if (!compra) {
-        return response
-            .status(409)
-            .send({ message: `Compra ${compraId} cannot be cancelled due to its current status.` });
-    }
+    try {
+        await compraService.cancelCompra(compraId);
+        return response.sendStatus(200);
 
-    return response.status(200).json(compra);
+    } catch (e) {
+        return response.status(500).send(e)
+    }
 }
 
 const validatePostParams = function() {
-    const requiredParams = ['nome', 'validade', 'localEntrega', 'itens'];
+    // const requiredParams = ['nome', 'validade', 'localEntrega', 'itens'];
 
-    const checkParamPresent = function(body, paramName) {
-        return (body[paramName]);
-    }
+    // const checkParamPresent = function(body, paramName) {
+    //     return (body[paramName]);
+    // }
 
     return function (request, response, next) {
-        const body = (request.body);
+        // const body = (request.body);
 
-        for (let param of requiredParams) {
-            if (!checkParamPresent(body, param)) {
-                return response
-                    .status(422)
-                    .send({ message: `Missing param ${param}.` });
-            }
-        }
+        // for (let param of requiredParams) {
+        //     if (!checkParamPresent(body, param)) {
+        //         return response
+        //             .status(422)
+        //             .send({ message: `Missing param ${param}.` });
+        //     }
+        // }
 
         next();
     }

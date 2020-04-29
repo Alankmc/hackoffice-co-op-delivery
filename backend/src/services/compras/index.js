@@ -1,103 +1,158 @@
-const { Compra } = require('../../model/compra.js');
+const { Compra } = require("../../model/compra.js");
+const { User } = require("../../model/user");
+const uuid = require("uuid");
 
 const status = {
-    NEW: 'NEW',
-    ASSIGNED: 'ASSIGNED',
-    DELIVERED: 'DELIVERED',
-    CANCELLED: 'CANCELLED'
-}
+  NEW: "NEW",
+  ASSIGNED: "ASSIGNED",
+  DELIVERED: "DELIVERED",
+  CANCELLED: "CANCELLED",
+};
 
 const compras = [
-    Compra.createFromJson(
-        { 
-            id: 1, 
-            nome: "João",
-            validade: 1587853511000, 
-            localCompra: "Supermercado Pague Menos", 
-            localEntrega: "Rua XV de Novembro, 400 - Indaiatuba - SP",
-            status: status.NEW,
-            itens: ["2 sacos de arroz 5kg", "5 maçãs", "3 abacaxis"],
-            observaoes: "Posso fazer o pick-up no seu porta-malas"
-        })
-]
+  Compra.createFromJson({
+    id: 1,
+    nome: "João",
+    validade: 1587853511000,
+    localCompra: "Supermercado Pague Menos",
+    localEntrega: "Rua XV de Novembro, 400 - Indaiatuba - SP",
+    status: status.NEW,
+    itens: ["2 sacos de arroz 5kg", "5 maçãs", "3 abacaxis"],
+    observaoes: "Posso fazer o pick-up no seu porta-malas",
+  }),
+];
 
-const listCompras = () => compras
+const listCompras = async () => {
+  const compras = new Compra();
+  compras.setCompraModel();
+  const users = new User();
+  users.setUserModel();
+  try {
+    const list = await compras.list();
+    const userList = await users.list();
+    const parsedUserList = userList.map((i) => ({
+      id: i.id,
+      name: i.name,
+      email: i.email,
+    }));
+    const fullList = list.map((i) => ({
+      id: i.id,
+      creator: parsedUserList.find((e) => e.id === i.creatorId),
+      products: i.products.split(">"), //Gambiarra daquelas de dar orgulho
+      status: i.status,
+      expiryDate: i.expiryDate,
+      assignee: parsedUserList.find((e) => e.id === i.assigneeId),
+      notes: i.notes,
+      deliveryAddress: i.deliveryAddress,
+      buyAddress: i.buyAddress,
+      createdAt: i.createdAt,
+    }));
+    return fullList;
+  } catch (e) {
+    console.error(e);
+    return [];
+  }
+};
 
 // TODO: findById from DB
 function getCompraById(compraId) {
-    return listCompras().find(c => c.id == compraId);
+  return listCompras().find((c) => c.id == compraId);
 }
 
-const addCompra = (newCompra) => {
-    newCompra.status = status.NEW;
+const addCompra = async (incomingBody) => {
+  // TODO: insert on DB
+  const newId = uuid.v4();
+  const newCompra = new Compra(newId);
+  newCompra.setCompraModel();
+  newCompra.create({
+    ...incomingBody,
+    products: incomingBody.products.join(">"),
+  });
+  const users = new User();
+  users.setUserModel();
+  const userList = await users.list();
+  const parsedUserList = userList.map((i) => ({
+    id: i.id,
+    name: i.name,
+    email: i.email,
+  }));
 
-    // TODO: insert on DB
-    compras.push(newCompra);
-}
+  return {
+    ...incomingBody,
+    creator: parsedUserList.find((i) => i.id === incomingBody.creatorId),
+    status: "NEW",
+    id: newId,
+  };
+};
 
 const updateCompra = (compraId, compraUpdate) => {
-    const compra = getCompraById(compraId);
-    if (!compra) {
-        return;
+  const compra = getCompraById(compraId);
+  if (!compra) {
+    return;
+  }
+
+  const updatedCompra = compra.update(compraUpdate);
+
+  return updatedCompra;
+};
+
+const assignCompra = async (compraId, assigneeId) => {
+  const compras = new Compra();
+  compras.setCompraModel();
+
+  await compras.update({
+    status: status.ASSIGNED,
+    assigneeId,
+  }, {
+    where: {
+      id: compraId,
     }
+  })
+  return;
+  // compra.status = status.ASSIGNED;
+  // compra.assigneeId = assigneeId;
+  // console.log('Got this guy!', compra);
+  // await compra.save();
+  // // TODO: update on DB
 
-    const updatedCompra = compra.update(compraUpdate);
+  // return compra;
+};
 
-    // TODO: update on DB
+const deliverCompra = async (compraId) => {
+  const compras = new Compra();
+  compras.setCompraModel();
 
-    return updatedCompra;
-}
-
-const assignCompra = (compraId) => {
-    let compra = getCompraById(compraId);
-
-    if (!compra || compra.status != status.NEW) {
-        return;
+  await compras.update({
+    status: status.DELIVERED,
+  }, {
+    where: {
+      id: compraId,
     }
+  })
+  return;
+};
 
-    const assigneeId = 'XPTO'; // TODO: Define how to get userId here.
-    compra.status = status.ASSIGNED;
-    compra.assigneeId = assigneeId;
-
-    // TODO: update on DB
-
-    return compra;
-}
-
-const deliverCompra = (compraId) => {
-    let compra = getCompraById(compraId);
-
-    if (!compra || compra.status != status.ASSIGNED) {
-        return;
+const cancelCompra = async (compraId) => {
+  const compras = new Compra();
+  compras.setCompraModel();
+  console.log('Cancelling this guy', compraId)
+  await compras.update({
+    status: status.CANCELLED,
+  }, {
+    where: {
+      id: compraId,
     }
-
-    compra.status = status.DELIVERED;
-
-    // TODO: update on DB
-
-    return compra;
-}
-
-const cancelCompra = (compraId) => {
-    let compra = getCompraById(compraId);
-
-    if (!compra || compra.status == status.DELIVERED) {
-        return;
-    }
-
-    compra.status = status.CANCELLED;
-
-    // TODO: update on DB
-
-    return compra;
-}
+  });
+  console.log('Deu boa?');
+  return;
+};
 
 module.exports = {
-    listCompras,
-    getCompraById,
-    addCompra,
-    updateCompra,
-    assignCompra,
-    deliverCompra,
-    cancelCompra
-}
+  listCompras,
+  getCompraById,
+  addCompra,
+  updateCompra,
+  assignCompra,
+  deliverCompra,
+  cancelCompra,
+};
