@@ -99,19 +99,19 @@ const ButtonWrapper = styled.div`
 `;
 
 const LoginPortion = (props) => {
-  const { isSignUpHandler, extraMessage } = props;
-  const [login, setLogin] = useState("");
+  const { isSignUpHandler, extraMessage, loginHandler } = props;
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   return (
     <React.Fragment>
       <CustomH1>Login</CustomH1>
       {extraMessage && <ExtraMessage>{extraMessage}</ExtraMessage>}
-      <FieldAndComponentMargin field="Login">
+      <FieldAndComponentMargin field="Email">
         <FullWidthInput
-          placeholder="Login"
-          value={login}
+          placeholder="Email"
+          value={email}
           type="text"
-          onChange={({ target: { value } }) => setLogin(value)}
+          onChange={({ target: { value } }) => setEmail(value)}
         />
       </FieldAndComponentMargin>
       <FieldAndComponentMargin field="Senha">
@@ -129,25 +129,27 @@ const LoginPortion = (props) => {
         >
           Não tenho conta
         </GhostButton>
-        <GreenButton onClick={() => {}}>Logar!</GreenButton>
+        <GreenButton onClick={() => loginHandler({ email, password })}>
+          Logar!
+        </GreenButton>
       </ButtonWrapper>
     </React.Fragment>
   );
 };
 
 const SignUpPortion = (props) => {
-  const { isSignUpHandler } = props;
+  const { isSignUpHandler, registerHandler } = props;
   const [name, setName] = useState("");
-  const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
   const passwordsDontMatch =
     !!password && !!confirmPassword && confirmPassword !== password;
   const goodToGo =
     !!name &&
-    !!login &&
     !!password &&
+    !!email &&
     !!confirmPassword &&
     password === confirmPassword;
 
@@ -162,12 +164,12 @@ const SignUpPortion = (props) => {
           onChange={({ target: { value } }) => setName(value)}
         />
       </FieldAndComponentMargin>
-      <FieldAndComponentMargin field="Login">
+      <FieldAndComponentMargin field="Email">
         <FullWidthInput
-          placeholder="Login"
-          value={login}
+          placeholder="Email"
+          value={email}
           type="text"
-          onChange={({ target: { value } }) => setLogin(value)}
+          onChange={({ target: { value } }) => setEmail(value)}
         />
       </FieldAndComponentMargin>
       <FieldAndComponentMargin field="Senha">
@@ -209,7 +211,10 @@ const SignUpPortion = (props) => {
         >
           Tenho conta
         </GhostButton>
-        <GreenButton onClick={() => {}} disabled={!goodToGo}>
+        <GreenButton
+          onClick={() => registerHandler({ name, email, password })}
+          disabled={!goodToGo}
+        >
           Criar conta
         </GreenButton>
       </ButtonWrapper>
@@ -218,7 +223,7 @@ const SignUpPortion = (props) => {
 };
 
 const SignUpPage = (props) => {
-  const { closeHandler, extraMessage } = props;
+  const { closeHandler, extraMessage, registerHandler, loginHandler } = props;
   const [loading, setLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
 
@@ -247,11 +252,15 @@ const SignUpPage = (props) => {
 
         <Wrapper>
           {isSignUp ? (
-            <SignUpPortion isSignUpHandler={setIsSignUp} />
+            <SignUpPortion
+              isSignUpHandler={setIsSignUp}
+              registerHandler={registerHandler}
+            />
           ) : (
             <LoginPortion
               isSignUpHandler={setIsSignUp}
               extraMessage={extraMessage}
+              loginHandler={loginHandler}
             />
           )}
         </Wrapper>
@@ -264,7 +273,14 @@ const Portalized = (props) => {
   return ReactDOM.createPortal(
     <loginContext.Consumer>
       {(context) => {
-        return <SignUpPage {...props} loading={context.loginLoading} />;
+        return (
+          <SignUpPage
+            {...props}
+            loading={context.loginLoading}
+            registerHandler={context.registerHandler}
+            loginHandler={context.loginHandler}
+          />
+        );
       }}
     </loginContext.Consumer>,
     document.getElementById("root")

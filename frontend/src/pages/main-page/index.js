@@ -13,12 +13,15 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 
 const spreadInputProps = (listing) => ({
-  name: listing.nome,
-  products: listing.itens,
-  expiryDate: listing.validade,
-  deliveryAddress: listing.localEntrega,
-  buyAddress: listing.localCompra,
-  notes: listing.observacoes,
+  name: listing.name,
+  products: listing.products,
+  expiryDate: listing.expiryDate,
+  deliveryAddress: listing.deliveryAddress,
+  buyAddress: listing.buyAddress,
+  notes: listing.notes,
+  assignee: listing.assignee,
+  creator: listing.creator,
+  id: listing.id,
 });
 
 const LoaderWrapper = styled.div`
@@ -36,31 +39,45 @@ const MainPage = (props) => {
   return (
     <div>
       <loginContext.Consumer>
-        {({ token }) => {
-          if (!!token && createIsOpen) {
-            // Signed Up, Create listing Modal
-            return (
-              <CreateListingModal
-                closeHandler={() => setCreateIsOpen(false)}
-                newDataHandler={(newData) => {
-                  setData([newData, ...data]);
-                }}
-              />
-            );
-          } else if (createIsOpen) {
-            // Not signed up!
-            return <SignUpModal closeHandler={() => setCreateIsOpen(false)} extraMessage="Uma conta é necessária para criar uma lista de compras! Se já não possui uma conta, basta se cadastrar." />;
-          }
-          return null;
+        {({ userInfo }) => {
+          return (
+            <>
+              {!!userInfo && createIsOpen && (
+                <CreateListingModal
+                  userInfo={userInfo}
+                  closeHandler={() => setCreateIsOpen(false)}
+                  newDataHandler={(newData) => {
+                    setData([newData, ...data]);
+                  }}
+                />
+              )}
+              {!userInfo && createIsOpen && (
+                <SignUpModal
+                  closeHandler={() => setCreateIsOpen(false)}
+                  extraMessage="Uma conta é necessária para criar uma lista de compras! Se já não possui uma conta, basta se cadastrar."
+                />
+              )}
+              {showingList >= 0 && (
+                <ViewListingModal
+                  assignHandler={(id, assignee) => setData(data.map((el) => {
+                    if (el.id === id) {
+                      return {
+                        ...el,
+                        assignee,
+                      }
+                    }
+                    return el;
+                  }))}
+                  closeHandler={() => setShowingList(-1)}
+                  userInfo={userInfo}
+                  {...spreadInputProps(data[showingList])}
+                />
+              )}
+            </>
+          );
         }}
       </loginContext.Consumer>
       {/* View listing Modal */}
-      {showingList >= 0 && (
-        <ViewListingModal
-          closeHandler={() => setShowingList(-1)}
-          {...spreadInputProps(data[showingList])}
-        />
-      )}
 
       <h1 style={{ display: "flex" }}>
         Listagens

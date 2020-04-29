@@ -16,7 +16,7 @@ const Listings = (props) => {
 
   return (
     <Wrapper>
-      {listings.map((el, index) => (
+      {listings.filter((el) => el.status === 'NEW').map((el, index) => (
         <Listing key={`listing_${el.id}`} selectListHandler={() => selectListHandler(index)} {...el} />
       ))}
     </Wrapper>

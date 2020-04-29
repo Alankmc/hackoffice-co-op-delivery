@@ -95,17 +95,19 @@ const ouputValues = ({
   expirationDate,
   name,
   deliveryAddress,
+  userInfo,
 }) => {
   return {
-    nome: name,
-    validade: expirationDate,
-    localEntrega: deliveryAddress,
-    itens: products.map((el) => `${el.quantity} ${el.product}`),
+    creatorId: userInfo.id,
+    expiryDate: expirationDate,
+    deliveryAddress,
+    products: products.map((el) => `${el.quantity} ${el.product}`),
+    notes,
   };
 };
 
 const CreateListing = (props) => {
-  const { closeHandler, newDataHandler } = props;
+  const { closeHandler, newDataHandler, userInfo } = props;
   const [products, setProducts] = useState([{ quantity: 1, product: "" }]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
@@ -113,9 +115,6 @@ const CreateListing = (props) => {
   const [deliveryAddress, setDeliveryAddress] = useState("");
   const [expirationDate, setExpirationDate] = useState("");
   const [hide, setHide] = useState(true);
-
-  // @TODO: Name comes from login?
-  const name = "Marcos";
 
   const changeProduct = (values, index) => {
     setProducts(products.map((el, ind) => (ind === index ? values : el)));
@@ -133,7 +132,7 @@ const CreateListing = (props) => {
     try {
       const response = await Axios.post(
         `${BASE_URL}/compras`,
-        ouputValues({ products, notes, deliveryAddress, expirationDate, name })
+        ouputValues({ products, notes, deliveryAddress, expirationDate, userInfo })
       );
       setLoading(false);
       newDataHandler(response.data);

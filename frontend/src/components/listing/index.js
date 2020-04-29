@@ -34,22 +34,22 @@ const AdditionalInfo = styled.div`
 `;
 
 const Listing = (props) => {
-  const { nome, itens, validade, localEntrega, localCompra,selectListHandler } = props;
+  const { creator, products, expiryDate, deliveryAddress, buyAddress, selectListHandler } = props;
   return (
     <Wrapper onClick={selectListHandler}>
       <UserInfo>
-        <UserName>{nome}</UserName>
+        <UserName>{creator.name}</UserName>
         <AdditionalInfo>
           <FontAwesomeIcon icon={faShoppingBasket} color="#f95734" />{" "}
-          {itens.length}
+          {products.length}
         </AdditionalInfo>
         <AdditionalInfo>
           <FontAwesomeIcon icon={faMapMarkerAlt} color="#f95734" />{" "}
-          {localEntrega}
+          {deliveryAddress}
         </AdditionalInfo>
-        {!!localCompra && (
+        {!!buyAddress && (
           <AdditionalInfo>
-            <FontAwesomeIcon icon={faStore} color="#f95734" /> {localCompra}
+            <FontAwesomeIcon icon={faStore} color="#f95734" /> {buyAddress}
           </AdditionalInfo>
         )}
       </UserInfo>

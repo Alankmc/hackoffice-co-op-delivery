@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { NavLink } from "react-router-dom";
 import { loginContext } from "../../contexts/login";
-import SignUpModal from '../../pages/sign-up-modal';
+import SignUpModal from "../../pages/sign-up-modal";
 
 const BarWrapper = styled.div`
   width: 100%;
@@ -15,6 +15,8 @@ const BarWrapper = styled.div`
 
 const Linker = styled.div`
   color: white;
+  text-decoration: underline;
+  cursor: pointer;
 `;
 
 const ClickableDiv = styled.div`
@@ -27,7 +29,7 @@ const TopBar = () => {
 
   return (
     <BarWrapper>
-      <NavLink to="/" style={{ textDecoration: 'none' }}>
+      <NavLink to="/" style={{ textDecoration: "none" }}>
         <Linker>Home</Linker>
       </NavLink>
 
@@ -36,14 +38,26 @@ const TopBar = () => {
       </NavLink> */}
       <loginContext.Consumer>
         {(context) => {
-          if (!context.token) {
-            return (<ClickableDiv onClick={() => setSignUpIsOpen(true)}>Cadastre-se!</ClickableDiv>)
+          if (!context.userInfo) {
+            return (
+              <ClickableDiv onClick={() => setSignUpIsOpen(true)}>
+                Cadastre-se!
+              </ClickableDiv>
+            );
+          } else if (signUpIsOpen) {
+            setSignUpIsOpen(false);
           }
-          return (<Linker>Online!</Linker>)
+          return (
+            <NavLink to="/my-info" style={{ textDecoration: "none" }}>
+              <Linker>Olá {context.userInfo.name}!</Linker>
+            </NavLink>
+          );
         }}
       </loginContext.Consumer>
 
-      {signUpIsOpen && <SignUpModal closeHandler={() => setSignUpIsOpen(false)}/>}
+      {signUpIsOpen && (
+        <SignUpModal closeHandler={() => setSignUpIsOpen(false)} />
+      )}
     </BarWrapper>
   );
 };

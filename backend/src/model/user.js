@@ -11,6 +11,15 @@ class User {
     } else {
       this.id = uuid.v4();
     }
+    this.model = sequelize.define("user", {
+      id: {
+        type: DataTypes.STRING,
+        primaryKey: true
+      },
+      name: DataTypes.STRING,
+      password: DataTypes.STRING,
+      email: DataTypes.STRING
+    });
   }
 
   create(user) {
@@ -18,7 +27,8 @@ class User {
       return this.User.create({
         name: user.name,
         email: user.email,
-        password: user.password
+        password: user.password,
+        id: this.id,
       });
     });
   }
@@ -28,17 +38,12 @@ class User {
     return users;
   }
 
+  getModel() {
+    return this.model;
+  }
+
   setUserModel() {
-    this.User = sequelize.define("user", {
-      id: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
-        primaryKey: true
-      },
-      name: DataTypes.STRING,
-      password: DataTypes.STRING,
-      email: DataTypes.STRING
-    });
+    this.User = this.model;
   }
 
   setPassword(password) {

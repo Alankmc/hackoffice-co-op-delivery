@@ -11,7 +11,7 @@ module.exports = (app) => {
 
     app.use("/compras", route);
 
-    route.get('/', (req, res) => res.send(listCompras()));
+    route.get('/', async (req, res) => res.send(await listCompras()));
     route.get('/:id', (req, res) => res.send(getCompra(req, res)));
 
     route.post('/', validatePostParams(), addCompra);

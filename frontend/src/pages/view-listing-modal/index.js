@@ -107,10 +107,24 @@ const Product = (props) => {
 };
 
 const ViewListing = (props) => {
-  const { closeHandler, name, products, deliveryAddress, buyAddress } = props;
+  const {
+    closeHandler,
+    name,
+    products,
+    deliveryAddress,
+    buyAddress,
+    id,
+    userInfo,
+    assignee,
+    creator,
+    assignHandler,
+  } = props;
   const [loading, setLoading] = useState(false);
   const [hide, setHide] = useState(true);
   const [confirm, setConfirm] = useState(false);
+
+  console.log(userInfo);
+  console.log(assignee);
 
   useEffect(() => setHide(false), []);
 
@@ -119,12 +133,32 @@ const ViewListing = (props) => {
     setTimeout(() => closeHandler(), 310);
   };
 
-  const clickedGo = () => {
-    console.log('Uhhhh clicked go?')
+  const clickedGo = async () => {
     if (confirm) {
+      setLoading(true);
+      await Axios.put(`${BASE_URL}/compras/${id}/atribuir`, {
+        assigneeId: userInfo.id,
+      });
+      assignHandler(id, userInfo)
+      setLoading(false);
     } else {
       setConfirm(true);
     }
+  };
+
+  const renderAssignPortion = () => {
+    if (!!assignee) {
+      return <div>Aceito por {assignee.name}!</div>;
+    }
+    if (!!userInfo && creator.id !== userInfo.id) {
+      return (
+        <GreenButton type="button" onClick={clickedGo}>
+          <FontAwesomeIcon icon={faShoppingCart} />{" "}
+          {confirm ? "Confirma?" : "Bora lá!"}
+        </GreenButton>
+      );
+    }
+    return null;
   };
 
   return (
@@ -142,7 +176,7 @@ const ViewListing = (props) => {
         </CloseIcon>
 
         <Wrapper>
-          <h1 style={{ margin: "0 0 18px 0" }}>Lista para {name}</h1>
+          <h1 style={{ margin: "0 0 18px 0" }}>Lista para {creator.name}</h1>
           <AdditionalInfoWrapper>
             <AdditionalInfo>
               <FontAwesomeIcon icon={faShoppingBasket} color="#f95734" />{" "}
@@ -164,12 +198,7 @@ const ViewListing = (props) => {
               <Product product={el} key={`product_${index}`} />
             ))}
           </ProductListWrapper>
-          <GoButtonWrapper>
-            <GreenButton type="button" onClick={clickedGo}>
-              <FontAwesomeIcon icon={faShoppingCart} />{" "}
-              {confirm ? "Confirma?" : "Bora lá!"}
-            </GreenButton>
-          </GoButtonWrapper>
+          <GoButtonWrapper>{renderAssignPortion()}</GoButtonWrapper>
         </Wrapper>
       </FormPositioner>
     </PortalPositioner>
