@@ -41,7 +41,7 @@ const TopBar = () => {
           if (!context.userInfo) {
             return (
               <ClickableDiv onClick={() => setSignUpIsOpen(true)}>
-                Cadastre-se!
+                Login
               </ClickableDiv>
             );
           } else if (signUpIsOpen) {
@@ -49,7 +49,7 @@ const TopBar = () => {
           }
           return (
             <NavLink to="/my-info" style={{ textDecoration: "none" }}>
-              <Linker>Olá {context.userInfo.name}!</Linker>
+              <Linker>Minhas listas</Linker>
             </NavLink>
           );
         }}

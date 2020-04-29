@@ -88,32 +88,49 @@ const MyInfo = (props) => {
   const assignedToMe = data?.filter((el) => el.assignee?.id === userInfo.id);
 
   return (
-    <ColumnWrappers>
-      {showingList.mine >= 0 && (
-        <ViewListingModal
-          assignHandler={() => {}}
-          closeHandler={() => setShowingList({ mine: -1, assigned: -1 })}
-          userInfo={userInfo}
-          {...spreadInputProps(myListings[showingList.mine])}
+    <div>
+      <h1 style={{margin: 0}}>Olá {userInfo.name}!</h1>
+      <ColumnWrappers>
+        {showingList.mine >= 0 && (
+          <ViewListingModal
+            assignHandler={() => {}}
+            updateStatusHandler={(id, newStatus) =>
+              setData(
+                data.map((el) =>
+                  el.id === id ? { ...el, status: newStatus } : el
+                )
+              )
+            }
+            closeHandler={() => setShowingList({ mine: -1, assigned: -1 })}
+            userInfo={userInfo}
+            {...spreadInputProps(myListings[showingList.mine])}
+          />
+        )}
+        {showingList.assigned >= 0 && (
+          <ViewListingModal
+            assignHandler={() => {}}
+            updateStatusHandler={(id, newStatus) =>
+              setData(
+                data.map((el) =>
+                  el.id === id ? { ...el, status: newStatus } : el
+                )
+              )
+            }
+            closeHandler={() => setShowingList({ mine: -1, assigned: -1 })}
+            userInfo={userInfo}
+            {...spreadInputProps(assignedToMe[showingList.assigned])}
+          />
+        )}
+        <MyListings
+          listings={myListings}
+          clickHandler={(v) => setShowingList({ mine: v, assigned: -1 })}
         />
-      )}
-      {showingList.assigned >= 0 && (
-        <ViewListingModal
-          assignHandler={() => {}}
-          closeHandler={() => setShowingList({ mine: -1, assigned: -1 })}
-          userInfo={userInfo}
-          {...spreadInputProps(assignedToMe[showingList.assigned])}
+        <MyAssigned
+          listings={assignedToMe}
+          clickHandler={(v) => setShowingList({ assigned: v, mine: -1 })}
         />
-      )}
-      <MyListings
-        listings={myListings}
-        clickHandler={(v) => setShowingList({ mine: v, assigned: -1 })}
-      />
-      <MyAssigned
-        listings={assignedToMe}
-        clickHandler={(v) => setShowingList({ assigned: v, mine: -1 })}
-      />
-    </ColumnWrappers>
+      </ColumnWrappers>
+    </div>
   );
 };
 

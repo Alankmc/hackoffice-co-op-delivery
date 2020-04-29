@@ -72,6 +72,7 @@ const MainPage = (props) => {
                           return {
                             ...el,
                             assignee,
+                            status: 'ASSIGNED',
                           };
                         }
                         return el;

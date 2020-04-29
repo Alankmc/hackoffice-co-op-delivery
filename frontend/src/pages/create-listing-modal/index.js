@@ -136,7 +136,8 @@ const CreateListing = (props) => {
         ouputValues({ products, notes, deliveryAddress, expirationDate, userInfo })
       );
       setLoading(false);
-      newDataHandler(response.data);
+      const today = new Date();
+      newDataHandler({...response.data, createdAt: today.getTime()});
       triggerClose();
     } catch (e) {
       setError(e);

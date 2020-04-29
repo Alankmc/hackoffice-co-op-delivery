@@ -203,6 +203,7 @@ const ViewListing = (props) => {
           assigneeId: userInfo.id,
         });
         assignHandler(id, userInfo);
+        triggerClose();
       }
       setLoading(false);
     } else {
@@ -221,12 +222,12 @@ const ViewListing = (props) => {
             {confirm ? "Tem certeza?" : "Cancelar"}
           </RedButton>
           <ThisGreenButton type="button" onClick={() => clickedAction(false)}>
-            {deliverConfirm ? "Tem certeza?" : "Confirmar Compra"}
+            {deliverConfirm ? "Tem certeza?" : "Confirmar Entrega"}
           </ThisGreenButton>
         </>
       );
     }
-    if (!!userInfo && creator.id !== userInfo.id) {
+    if (!!userInfo && creator.id !== userInfo.id && !assignee) {
       return (
         <BlueButton type="button" onClick={clickedAction}>
           <FontAwesomeIcon icon={faShoppingCart} />{" "}
