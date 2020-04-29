@@ -9,6 +9,9 @@ import {
   faStore,
   faTimes,
   faShoppingCart,
+  faRunning,
+  faCalendarAlt,
+  faHourglassEnd,
 } from "@fortawesome/free-solid-svg-icons";
 import Axios from "axios";
 import { BASE_URL } from "../../config/env";
@@ -25,6 +28,19 @@ const LoaderOverlay = styled.div`
   align-items: center;
   justify-content: center;
 `;
+
+const STATUS_COLORS = {
+  ASSIGNED: "#20639c",
+  NEW: "#f95734",
+  CANCELLED: "#575757",
+  DELIVERED: "#3f8f50",
+};
+const STATUS = {
+  ASSIGNED: "Atribuído",
+  NEW: "Novo",
+  CANCELLED: "Cancelado",
+  DELIVERED: "Entregue",
+};
 
 const PortalPositioner = styled.div`
   top: 0;
@@ -81,6 +97,7 @@ const AdditionalInfoWrapper = styled.div`
 
 const AdditionalInfo = styled.div`
   margin-right: 24px;
+  margin-bottom: 6px;
 `;
 
 const ProductListWrapper = styled.div`
@@ -100,11 +117,32 @@ const GoButtonWrapper = styled.div`
   justify-content: flex-end;
 `;
 
+const ThisGreenButton = styled(GreenButton)`
+  width: 220px;
+`;
+
 const Product = (props) => {
   const { product } = props;
 
   return <ProductWrapper>• {product}</ProductWrapper>;
 };
+
+const RedButton = styled(GreenButton)`
+  background-color: #c80639;
+  margin-right: 16px;
+
+  &:hover:not(:disabled) {
+    background-color: #c80639;
+  }
+`;
+
+const BlueButton = styled(GreenButton)`
+  background-color: #20639c;
+
+  &:hover:not(:disabled) {
+    background-color: #20639c;
+  }
+`;
 
 const ViewListing = (props) => {
   const {
@@ -118,13 +156,17 @@ const ViewListing = (props) => {
     assignee,
     creator,
     assignHandler,
+    updateStatusHandler,
+    status,
+    expiryDate,
+    createdAt,
   } = props;
   const [loading, setLoading] = useState(false);
   const [hide, setHide] = useState(true);
   const [confirm, setConfirm] = useState(false);
+  const [deliverConfirm, setDeliverConfirm] = useState(false);
 
-  console.log(userInfo);
-  console.log(assignee);
+  const isMine = userInfo && creator.id === userInfo.id;
 
   useEffect(() => setHide(false), []);
 
@@ -133,13 +175,35 @@ const ViewListing = (props) => {
     setTimeout(() => closeHandler(), 310);
   };
 
-  const clickedGo = async () => {
-    if (confirm) {
+  const clickedAction = async (isCancel = false) => {
+    console.log("Clicked with cancel", isCancel, confirm, isMine);
+    if (isMine && !deliverConfirm && !isCancel) {
+      setConfirm(false);
+      setDeliverConfirm(true);
+      return;
+    }
+    if (isMine && isCancel && !confirm) {
+      setConfirm(true);
+      setDeliverConfirm(false);
+      return;
+    }
+    if (confirm || deliverConfirm) {
       setLoading(true);
-      await Axios.put(`${BASE_URL}/compras/${id}/atribuir`, {
-        assigneeId: userInfo.id,
-      });
-      assignHandler(id, userInfo)
+      if (isMine) {
+        if (isCancel) {
+          await Axios.put(`${BASE_URL}/compras/${id}/cancelar`);
+          updateStatusHandler(id, "CANCELLED");
+        } else {
+          await Axios.put(`${BASE_URL}/compras/${id}/entregar`);
+          updateStatusHandler(id, "DELIVERED");
+        }
+        triggerClose();
+      } else {
+        await Axios.put(`${BASE_URL}/compras/${id}/atribuir`, {
+          assigneeId: userInfo.id,
+        });
+        assignHandler(id, userInfo);
+      }
       setLoading(false);
     } else {
       setConfirm(true);
@@ -147,19 +211,33 @@ const ViewListing = (props) => {
   };
 
   const renderAssignPortion = () => {
-    if (!!assignee) {
-      return <div>Aceito por {assignee.name}!</div>;
+    if (status === "CANCELLED" || status === "DELIVERED") {
+      return null;
+    }
+    if (isMine) {
+      return (
+        <>
+          <RedButton type="button" onClick={() => clickedAction(true)}>
+            {confirm ? "Tem certeza?" : "Cancelar"}
+          </RedButton>
+          <ThisGreenButton type="button" onClick={() => clickedAction(false)}>
+            {deliverConfirm ? "Tem certeza?" : "Confirmar Compra"}
+          </ThisGreenButton>
+        </>
+      );
     }
     if (!!userInfo && creator.id !== userInfo.id) {
       return (
-        <GreenButton type="button" onClick={clickedGo}>
+        <BlueButton type="button" onClick={clickedAction}>
           <FontAwesomeIcon icon={faShoppingCart} />{" "}
           {confirm ? "Confirma?" : "Bora lá!"}
-        </GreenButton>
+        </BlueButton>
       );
     }
     return null;
   };
+  const createdDate = new Date(createdAt);
+  const today = new Date();
 
   return (
     <PortalPositioner hide={hide}>
@@ -178,6 +256,19 @@ const ViewListing = (props) => {
         <Wrapper>
           <h1 style={{ margin: "0 0 18px 0" }}>Lista para {creator.name}</h1>
           <AdditionalInfoWrapper>
+            <AdditionalInfo style={{marginBottom: '12px'}}>
+              <TitularSpan>Status:</TitularSpan>{" "}
+              <span
+                style={{ color: STATUS_COLORS[status], fontWeight: "bold" }}
+              >
+                {STATUS[status]}
+              </span>
+            </AdditionalInfo>
+            <AdditionalInfo>
+              <FontAwesomeIcon icon={faCalendarAlt} color="#f95734" />{" "}
+              <TitularSpan>Criado em:</TitularSpan> {createdDate.getDate()}/
+              {createdDate.getMonth() + 1}
+            </AdditionalInfo>
             <AdditionalInfo>
               <FontAwesomeIcon icon={faShoppingBasket} color="#f95734" />{" "}
               <TitularSpan>Produtos:</TitularSpan> {products.length}
@@ -190,6 +281,23 @@ const ViewListing = (props) => {
               <AdditionalInfo>
                 <FontAwesomeIcon icon={faStore} color="#f95734" />{" "}
                 <TitularSpan>Local de Compra:</TitularSpan> {buyAddress}
+              </AdditionalInfo>
+            )}
+            {!!expiryDate && (
+              <AdditionalInfo>
+                <FontAwesomeIcon icon={faHourglassEnd} color="#f95734" />{" "}
+                <TitularSpan>Prazo:</TitularSpan> {Math.ceil((expiryDate - today) / (1000 * 3600 * 24))} dias
+              </AdditionalInfo>
+            )}
+            {!!assignee && (
+              <AdditionalInfo>
+                <FontAwesomeIcon icon={faRunning} color="#f95734" />{" "}
+                <TitularSpan>
+                  Atribuído a{" "}
+                  <span style={{ color: "#f95734", fontWeight: "bold" }}>
+                    {assignee.name}
+                  </span>
+                </TitularSpan>
               </AdditionalInfo>
             )}
           </AdditionalInfoWrapper>

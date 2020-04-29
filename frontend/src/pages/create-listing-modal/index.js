@@ -97,9 +97,10 @@ const ouputValues = ({
   deliveryAddress,
   userInfo,
 }) => {
+  const date = new Date(expirationDate);
   return {
     creatorId: userInfo.id,
-    expiryDate: expirationDate,
+    expiryDate: date.getTime(),
     deliveryAddress,
     products: products.map((el) => `${el.quantity} ${el.product}`),
     notes,

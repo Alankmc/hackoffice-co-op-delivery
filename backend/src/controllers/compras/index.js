@@ -52,17 +52,39 @@ const assignCompra = async (request, response) => {
             .send({ message: 'Missing path param id.' });
     }
 
-    await compraService.assignCompra(compraId, request.body.assigneeId);
+    try {
+        await compraService.assignCompra(compraId, request.body.assigneeId);
+        return response.sendStatus(200);
+
+    } catch (e) {
+        return response.status(500).send(e)
+    }
+}
+
+const deliverCompra = async (request, response) => {
+    const compraId = request.params.id;
+    if (!compraId) {
+        return response
+            .status(400)
+            .send({ message: 'Missing path param id.' });
+    }
+
+    try {
+        await compraService.deliverCompra(compraId);
+        return response.sendStatus(200);
+
+    } catch (e) {
+        return response.status(500).send(e)
+    }
     // if (!compra) {
     //     return response
     //         .status(409)
-    //         .send({ message: `Compra ${compraId} cannot be assigned due to its current status.` });
+    //         .send({ message: `Compra ${compraId} cannot be delivered due to its current status.` });
     // }
 
-    return response.sendStatus(200);
 }
 
-const deliverCompra = (request, response) => {
+const cancelCompra = async (request, response) => {
     const compraId = request.params.id;
     if (!compraId) {
         return response
@@ -70,32 +92,13 @@ const deliverCompra = (request, response) => {
             .send({ message: 'Missing path param id.' });
     }
 
-    const compra = compraService.deliverCompra(compraId);
-    if (!compra) {
-        return response
-            .status(409)
-            .send({ message: `Compra ${compraId} cannot be delivered due to its current status.` });
+    try {
+        await compraService.cancelCompra(compraId);
+        return response.sendStatus(200);
+
+    } catch (e) {
+        return response.status(500).send(e)
     }
-
-    return response.status(200).json(compra);
-}
-
-const cancelCompra = (request, response) => {
-    const compraId = request.params.id;
-    if (!compraId) {
-        return response
-            .status(400)
-            .send({ message: 'Missing path param id.' });
-    }
-
-    const compra = compraService.cancelCompra(compraId);
-    if (!compra) {
-        return response
-            .status(409)
-            .send({ message: `Compra ${compraId} cannot be cancelled due to its current status.` });
-    }
-
-    return response.status(200).json(compra);
 }
 
 const validatePostParams = function() {

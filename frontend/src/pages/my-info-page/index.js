@@ -11,6 +11,8 @@ import ViewListingModal from "../view-listing-modal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { Redirect } from "react-router-dom";
+import Listing from "../../components/listing";
+import Listings from "../main-page/listings";
 
 const LoaderWrapper = styled.div`
   width: 100%;
@@ -19,31 +21,64 @@ const LoaderWrapper = styled.div`
   display: flex;
 `;
 
+const Column = styled.div`
+  width: 100%;
+`;
+const RightColumn = styled.div`
+  width: 100%;
+  margin-left: 40px;
+`;
+
+const spreadInputProps = (listing) => ({
+  name: listing.name,
+  products: listing.products,
+  expiryDate: listing.expiryDate,
+  deliveryAddress: listing.deliveryAddress,
+  buyAddress: listing.buyAddress,
+  notes: listing.notes,
+  assignee: listing.assignee,
+  creator: listing.creator,
+  id: listing.id,
+  status: listing.status,
+  createdAt: listing.createdAt,
+});
+
 const MyListings = (props) => {
-  const { listings } = props;
+  const { listings, clickHandler } = props;
   return (
-    <div>
+    <Column>
       <h3>Minhas Listas</h3>
-      {listings && listings.length ? <div>Tem coisa!</div> : <div>Nenhuma lista sua no momento</div>}
-    </div>
+      {listings && listings.length ? (
+        <Listings listings={listings} selectListHandler={clickHandler} />
+      ) : (
+        <div>Nenhuma lista sua no momento</div>
+      )}
+    </Column>
   );
 };
 
 const MyAssigned = (props) => {
-  const { listings } = props;
+  const { listings, clickHandler } = props;
   return (
-    <div>
+    <RightColumn>
       <h3>Minhas Tarefas</h3>
-      {listings && listings.length ? <div>Tem coisa!</div> : <div>Nenhuma tarefa aberta</div>}
-
-    </div>
+      {listings && listings.length ? (
+        <Listings listings={listings} selectListHandler={clickHandler} />
+      ) : (
+        <div>Nenhuma tarefa aberta</div>
+      )}
+    </RightColumn>
   );
 };
+
+const ColumnWrappers = styled.div`
+  display: flex;
+`;
 
 const MyInfo = (props) => {
   const { loading, data, setData, userInfo } = props;
   const [createIsOpen, setCreateIsOpen] = useState(false);
-  const [showingList, setShowingList] = useState(-1);
+  const [showingList, setShowingList] = useState({ mine: -1, assigned: -1 });
 
   if (!userInfo) {
     return <Redirect to="/" />;
@@ -51,11 +86,34 @@ const MyInfo = (props) => {
 
   const myListings = data?.filter((el) => el.creator?.id === userInfo.id);
   const assignedToMe = data?.filter((el) => el.assignee?.id === userInfo.id);
+
   return (
-    <div>
-      <MyListings listings={myListings} />
-      <MyAssigned listings={assignedToMe} />
-    </div>
+    <ColumnWrappers>
+      {showingList.mine >= 0 && (
+        <ViewListingModal
+          assignHandler={() => {}}
+          closeHandler={() => setShowingList({ mine: -1, assigned: -1 })}
+          userInfo={userInfo}
+          {...spreadInputProps(myListings[showingList.mine])}
+        />
+      )}
+      {showingList.assigned >= 0 && (
+        <ViewListingModal
+          assignHandler={() => {}}
+          closeHandler={() => setShowingList({ mine: -1, assigned: -1 })}
+          userInfo={userInfo}
+          {...spreadInputProps(assignedToMe[showingList.assigned])}
+        />
+      )}
+      <MyListings
+        listings={myListings}
+        clickHandler={(v) => setShowingList({ mine: v, assigned: -1 })}
+      />
+      <MyAssigned
+        listings={assignedToMe}
+        clickHandler={(v) => setShowingList({ assigned: v, mine: -1 })}
+      />
+    </ColumnWrappers>
   );
 };
 

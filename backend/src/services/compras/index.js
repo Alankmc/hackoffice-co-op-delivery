@@ -118,32 +118,33 @@ const assignCompra = async (compraId, assigneeId) => {
   // return compra;
 };
 
-const deliverCompra = (compraId) => {
-  let compra = getCompraById(compraId);
+const deliverCompra = async (compraId) => {
+  const compras = new Compra();
+  compras.setCompraModel();
 
-  if (!compra || compra.status != status.ASSIGNED) {
-    return;
-  }
-
-  compra.status = status.DELIVERED;
-
-  // TODO: update on DB
-
-  return compra;
+  await compras.update({
+    status: status.DELIVERED,
+  }, {
+    where: {
+      id: compraId,
+    }
+  })
+  return;
 };
 
-const cancelCompra = (compraId) => {
-  let compra = getCompraById(compraId);
-
-  if (!compra || compra.status == status.DELIVERED) {
-    return;
-  }
-
-  compra.status = status.CANCELLED;
-
-  // TODO: update on DB
-
-  return compra;
+const cancelCompra = async (compraId) => {
+  const compras = new Compra();
+  compras.setCompraModel();
+  console.log('Cancelling this guy', compraId)
+  await compras.update({
+    status: status.CANCELLED,
+  }, {
+    where: {
+      id: compraId,
+    }
+  });
+  console.log('Deu boa?');
+  return;
 };
 
 module.exports = {

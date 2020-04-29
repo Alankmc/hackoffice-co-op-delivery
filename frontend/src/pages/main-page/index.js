@@ -21,7 +21,9 @@ const spreadInputProps = (listing) => ({
   notes: listing.notes,
   assignee: listing.assignee,
   creator: listing.creator,
+  createdAt: listing.createdAt,
   id: listing.id,
+  status: listing.status,
 });
 
 const LoaderWrapper = styled.div`
@@ -35,6 +37,10 @@ const MainPage = (props) => {
   const { loading, data, setData } = props;
   const [createIsOpen, setCreateIsOpen] = useState(false);
   const [showingList, setShowingList] = useState(-1);
+
+  const visibleData = data
+    ? data.filter((el) => el.status !== "CANCELLED" && el.status !== 'DELIVERED')
+    : [];
 
   return (
     <div>
@@ -59,18 +65,28 @@ const MainPage = (props) => {
               )}
               {showingList >= 0 && (
                 <ViewListingModal
-                  assignHandler={(id, assignee) => setData(data.map((el) => {
-                    if (el.id === id) {
-                      return {
-                        ...el,
-                        assignee,
-                      }
-                    }
-                    return el;
-                  }))}
+                  assignHandler={(id, assignee) =>
+                    setData(
+                      data.map((el) => {
+                        if (el.id === id) {
+                          return {
+                            ...el,
+                            assignee,
+                          };
+                        }
+                        return el;
+                      })
+                    )
+                  }
                   closeHandler={() => setShowingList(-1)}
+                  updateStatusHandler={(id, newStatus) => 
+                    setData(
+                      data.map((el) =>
+                        el.id === id ? { ...el, status: newStatus } : el
+                      )
+                    )}
                   userInfo={userInfo}
-                  {...spreadInputProps(data[showingList])}
+                  {...spreadInputProps(visibleData[showingList])}
                 />
               )}
             </>
@@ -93,7 +109,7 @@ const MainPage = (props) => {
           <Loader />
         </LoaderWrapper>
       ) : (
-        <Listings listings={data} selectListHandler={setShowingList} />
+        <Listings listings={visibleData} selectListHandler={setShowingList} />
       )}
     </div>
   );
